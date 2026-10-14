@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val clockFmt: DateTimeFormatter =
-        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy    HH:mm:ss 'NPT'")
+        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy    hh:mm:ss a 'NPT'")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
