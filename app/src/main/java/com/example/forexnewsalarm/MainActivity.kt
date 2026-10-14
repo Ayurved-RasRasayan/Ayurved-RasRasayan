@@ -82,7 +82,19 @@ class MainActivity : AppCompatActivity() {
         dismissButton.setOnClickListener { dismissAlarm() }
 
         updateButtons()
+        startKeeperService()
         refreshEvents()
+    }
+
+    private fun startKeeperService() {
+        val svc = Intent(this, KeeperService::class.java).apply {
+            action = KeeperService.ACTION_START
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(svc)
+        } else {
+            startService(svc)
+        }
     }
 
     override fun onResume() {
