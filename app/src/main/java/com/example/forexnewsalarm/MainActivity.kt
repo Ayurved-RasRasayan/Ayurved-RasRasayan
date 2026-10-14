@@ -14,6 +14,8 @@ import android.provider.Settings
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+import android.graphics.Typeface
 import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
@@ -39,7 +41,6 @@ class MainActivity : AppCompatActivity() {
     private var currentEvents: List<NewsEvent> = emptyList()
     private var scheduledCount: Int = 0
 
-    // Live clock
     private val clockHandler = Handler(Looper.getMainLooper())
     private val clockTick = object : Runnable {
         override fun run() {
@@ -49,7 +50,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val clockFmt: DateTimeFormatter =
-        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy    hh:mm:ss a 'NPT'")
+        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy  \u00B7  hh:mm:ss a 'NPT'")
+
+    private val dayHeaderFmt: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy")
+
+    private val dayKeyFmt: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+    private val time12Fmt: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("hh:mm a")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,7 +151,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ------------------------------------------------------------------
-    // Render table
+    // Render: grouped by day, 12-hour times, bold day headers
     // ------------------------------------------------------------------
     private fun updateStatusText() {
         val lead = Prefs.getMinutesBefore(this)
@@ -159,24 +169,53 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        sb.append(String.format("%-11s%-5s%s%n", "TIME (NPT)", "CUR", "EVENT"))
-        sb.append("\u2500".repeat(34)).append("\n")
+        // Group events by Nepal-time day
+        val grouped: Map<String, List<NewsEvent>> = currentEvents.groupBy {
+            TimezoneHelper.toNepal(it.eventTimeUtc).format(dayKeyFmt)
+        }
 
-        val fmt = DateTimeFormatter.ofPattern("HH:mm")
-        for (e in currentEvents) {
-            val timeStr = TimezoneHelper.toNepal(e.eventTimeUtc).format(fmt)
-            val cur = e.currency.take(3).padEnd(5)
-            sb.append(timeStr.padEnd(11))
-            sb.append(cur)
+        for ((_, dayEvents) in grouped) {
+            val first = dayEvents.first()
+            val dayHeaderText = TimezoneHelper.toNepal(first.eventTimeUtc).format(dayHeaderFmt)
 
-            val dotStart = sb.length
-            sb.append("\u25CF ")
+            // Day header block
+            sb.append("\u2501".repeat(34)).append("\n")
+            val headerStart = sb.length
+            sb.append("  ").append(dayHeaderText).append("\n")
             sb.setSpan(
-                ForegroundColorSpan(Color.parseColor("#E53935")),
-                dotStart, sb.length,
+                StyleSpan(Typeface.BOLD),
+                headerStart, sb.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            sb.append(e.title).append("\n")
+            sb.setSpan(
+                ForegroundColorSpan(Color.parseColor("#0D47A1")),
+                headerStart, sb.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            sb.append("\u2501".repeat(34)).append("\n")
+
+            // Column header
+            sb.append(String.format("%-10s%-5s%s%n", "TIME (NPT)", "CUR", "EVENT"))
+            sb.append("\u2500".repeat(34)).append("\n")
+
+            // Event rows
+            for (e in dayEvents) {
+                val timeStr = TimezoneHelper.toNepal(e.eventTimeUtc).format(time12Fmt)
+                val cur = e.currency.take(3).padEnd(5)
+                sb.append(timeStr.padEnd(10))
+                sb.append(cur)
+
+                val dotStart = sb.length
+                sb.append("\u25CF ")
+                sb.setSpan(
+                    ForegroundColorSpan(Color.parseColor("#E53935")),
+                    dotStart, sb.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                sb.append(e.title).append("\n")
+            }
+
+            sb.append("\n")
         }
 
         statusText.text = sb
