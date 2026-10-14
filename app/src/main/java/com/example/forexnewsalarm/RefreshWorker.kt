@@ -1,4 +1,4 @@
-﻿package com.example.forexnewsalarm
+package com.example.forexnewsalarm
 
 import android.content.Context
 import androidx.work.CoroutineWorker

@@ -1,4 +1,4 @@
-﻿# Forex News Alarm
+# Forex News Alarm
 
 An Android app that alerts you **9 minutes before every high-impact (red folder) economic news event**.
 

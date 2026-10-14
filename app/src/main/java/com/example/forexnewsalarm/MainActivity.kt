@@ -1,4 +1,4 @@
-﻿package com.example.forexnewsalarm
+package com.example.forexnewsalarm
 
 import android.app.AlarmManager
 import android.content.Context
