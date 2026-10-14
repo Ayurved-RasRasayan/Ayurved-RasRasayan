@@ -3,24 +3,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <TextView
+        android:id="@+id/clockText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Forex News Alarm"
-        android:textSize="22sp"
+        android:text="Wed, 14 Oct 2026    00:00:00 NPT"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:gravity="center"
+        android:textColor="#0D47A1"
+        android:fontFamily="monospace"
         android:paddingBottom="4dp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Rings 9 min before every red-folder event (Nepal time)"
+        android:text="Forex News Alarm"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rings before every red-folder event (Nepal time)"
         android:textSize="12sp"
         android:gravity="center"
-        android:paddingBottom="12dp" />
+        android:paddingBottom="10dp" />
 
     <Button
         android:id="@+id/refreshButton"
@@ -28,25 +39,41 @@
         android:layout_height="wrap_content"
         android:text="Refresh &amp; Schedule" />
 
+    <TextView
+        android:id="@+id/leadTimeText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Alarm leads by: 9 min"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <SeekBar
+        android:id="@+id/leadTimeSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="29"
+        android:progress="8" />
+
     <Button
         android:id="@+id/permissionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:text="Grant exact alarm permission" />
 
     <Button
         android:id="@+id/batteryButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:text="Disable battery optimization" />
 
     <Button
         android:id="@+id/dismissButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:backgroundTint="#C62828"
         android:textColor="#FFFFFF"
         android:text="DISMISS RINGING ALARM" />
@@ -55,15 +82,18 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp">
+        android:layout_marginTop="10dp"
+        android:background="#F5F5F5"
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Loading..."
-            android:textSize="13sp"
-            android:fontFamily="monospace" />
+            android:textSize="12sp"
+            android:fontFamily="monospace"
+            android:textColor="#212121" />
     </ScrollView>
 
 </LinearLayout>

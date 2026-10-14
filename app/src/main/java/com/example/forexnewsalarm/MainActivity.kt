@@ -3,37 +3,68 @@ package com.example.forexnewsalarm
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.widget.Button
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var clockText: TextView
     private lateinit var statusText: TextView
+    private lateinit var leadTimeText: TextView
+    private lateinit var leadTimeSeekBar: SeekBar
     private lateinit var refreshButton: Button
     private lateinit var permissionButton: Button
     private lateinit var batteryButton: Button
     private lateinit var dismissButton: Button
 
+    private var currentEvents: List<NewsEvent> = emptyList()
+    private var scheduledCount: Int = 0
+
+    // Live clock
+    private val clockHandler = Handler(Looper.getMainLooper())
+    private val clockTick = object : Runnable {
+        override fun run() {
+            updateClock()
+            clockHandler.postDelayed(this, 1000L)
+        }
+    }
+
+    private val clockFmt: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy    HH:mm:ss 'NPT'")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        clockText = findViewById(R.id.clockText)
         statusText = findViewById(R.id.statusText)
+        leadTimeText = findViewById(R.id.leadTimeText)
+        leadTimeSeekBar = findViewById(R.id.leadTimeSeekBar)
         refreshButton = findViewById(R.id.refreshButton)
         permissionButton = findViewById(R.id.permissionButton)
         batteryButton = findViewById(R.id.batteryButton)
         dismissButton = findViewById(R.id.dismissButton)
+
+        setupLeadTimeSlider()
 
         refreshButton.setOnClickListener { refreshEvents() }
         permissionButton.setOnClickListener { requestExactAlarmPermission() }
@@ -47,36 +78,113 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateButtons()
+        clockHandler.post(clockTick)
     }
 
+    override fun onPause() {
+        super.onPause()
+        clockHandler.removeCallbacks(clockTick)
+    }
+
+    private fun updateClock() {
+        val now: ZonedDateTime = TimezoneHelper.nowInNepal()
+        clockText.text = now.format(clockFmt)
+    }
+
+    // ------------------------------------------------------------------
+    // Lead-time slider
+    // ------------------------------------------------------------------
+    private fun setupLeadTimeSlider() {
+        val minutes = Prefs.getMinutesBefore(this)
+        leadTimeSeekBar.max = Prefs.MAX_MINUTES - Prefs.MIN_MINUTES
+        leadTimeSeekBar.progress = minutes - Prefs.MIN_MINUTES
+        leadTimeText.text = "Alarm leads by: $minutes min"
+
+        leadTimeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                val m = progress + Prefs.MIN_MINUTES
+                leadTimeText.text = "Alarm leads by: $m min"
+            }
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {
+                val m = (sb?.progress ?: 0) + Prefs.MIN_MINUTES
+                Prefs.setMinutesBefore(this@MainActivity, m)
+                if (currentEvents.isNotEmpty()) {
+                    rescheduleCurrent()
+                } else {
+                    updateStatusText()
+                }
+            }
+        })
+    }
+
+    // ------------------------------------------------------------------
+    // Fetch + schedule
+    // ------------------------------------------------------------------
     private fun refreshEvents() {
         statusText.text = "Fetching high-impact events..."
         lifecycleScope.launch {
             val events = withContext(Dispatchers.IO) {
                 CalendarScraper().fetchAllHighImpactEvents()
             }
+            currentEvents = events
             val scheduler = AlarmScheduler(this@MainActivity)
-            val scheduled = scheduler.scheduleAll(events)
-
-            val fmt = DateTimeFormatter.ofPattern("EEE dd MMM HH:mm")
-            val sb = StringBuilder()
-            sb.appendLine("High-impact events: ${events.size}")
-            sb.appendLine("Alarms scheduled:    $scheduled")
-            sb.appendLine()
-            for (e in events.take(30)) {
-                val npt = TimezoneHelper.toNepal(e.eventTimeUtc).format(fmt)
-                sb.appendLine("\u2022 ${e.title} (${e.currency})")
-                sb.appendLine("  $npt NPT  [${e.source}]")
-            }
-            if (events.size > 30) sb.appendLine("... and ${events.size - 30} more")
-            if (events.isEmpty()) {
-                sb.appendLine("No events yet. The GitHub Action runs every 15 min ")
-                sb.appendLine("check back shortly. You can also tap Refresh.")
-            }
-            statusText.text = sb.toString()
+            scheduledCount = scheduler.scheduleAll(events)
+            updateStatusText()
         }
     }
 
+    private fun rescheduleCurrent() {
+        val scheduler = AlarmScheduler(this)
+        scheduledCount = scheduler.scheduleAll(currentEvents)
+        updateStatusText()
+    }
+
+    // ------------------------------------------------------------------
+    // Render table
+    // ------------------------------------------------------------------
+    private fun updateStatusText() {
+        val lead = Prefs.getMinutesBefore(this)
+        val sb = SpannableStringBuilder()
+
+        sb.append("Lead time:  ").append(lead.toString()).append(" min before event\n")
+        sb.append("Events:     ").append(currentEvents.size.toString()).append("\n")
+        sb.append("Scheduled:  ").append(scheduledCount.toString()).append(" alarms\n\n")
+
+        if (currentEvents.isEmpty()) {
+            sb.append("No high-impact events yet.\n")
+            sb.append("The scraper runs every 15 minutes.\n")
+            sb.append("Tap Refresh & Schedule in a moment.\n")
+            statusText.text = sb
+            return
+        }
+
+        sb.append(String.format("%-11s%-5s%s%n", "TIME (NPT)", "CUR", "EVENT"))
+        sb.append("\u2500".repeat(34)).append("\n")
+
+        val fmt = DateTimeFormatter.ofPattern("HH:mm")
+        for (e in currentEvents) {
+            val timeStr = TimezoneHelper.toNepal(e.eventTimeUtc).format(fmt)
+            val cur = e.currency.take(3).padEnd(5)
+            sb.append(timeStr.padEnd(11))
+            sb.append(cur)
+
+            val dotStart = sb.length
+            sb.append("\u25CF ")
+            sb.setSpan(
+                ForegroundColorSpan(Color.parseColor("#E53935")),
+                dotStart, sb.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            sb.append(e.title).append("\n")
+        }
+
+        statusText.text = sb
+    }
+
+    // ------------------------------------------------------------------
+    // Permissions
+    // ------------------------------------------------------------------
     private fun requestExactAlarmPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -101,7 +209,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     )
                 } catch (e: Exception) {
-                    // Fall back to the general battery-optimization settings screen
                     startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
                 }
             }

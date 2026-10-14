@@ -11,25 +11,24 @@ import java.time.ZonedDateTime
 
 /**
  * Schedules "alarm clock" style alarms for high-impact news events.
- * setAlarmClock() is the strongest alarm API on Android: it wakes the
- * device fully, bypasses Doze, and shows the system alarm icon.
+ * Lead time is read from Prefs and can change any time.
  */
 class AlarmScheduler(private val context: Context) {
 
     companion object {
         private const val TAG = "AlarmScheduler"
-        const val MINUTES_BEFORE = 9L
     }
 
     private val alarmManager: AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     fun scheduleAlarm(event: NewsEvent): Boolean {
+        val minutesBefore = Prefs.getMinutesBefore(context).toLong()
         val alertTime: ZonedDateTime =
-            TimezoneHelper.alertTimeInNepal(event.eventTimeUtc, MINUTES_BEFORE)
+            TimezoneHelper.alertTimeInNepal(event.eventTimeUtc, minutesBefore)
 
         if (alertTime.toInstant().isBefore(Instant.now())) {
-            Log.d(TAG, "Skipping past event: ${event.title}")
+            Log.d(TAG, "Skipping past alert: ${event.title} @ $alertTime")
             return false
         }
 
@@ -48,12 +47,12 @@ class AlarmScheduler(private val context: Context) {
             if (canScheduleExactAlarms()) {
                 val info = AlarmManager.AlarmClockInfo(triggerAtMillis, showIntent)
                 alarmManager.setAlarmClock(info, operation)
-                Log.d(TAG, "AlarmClock scheduled: ${event.title} @ $alertTime")
+                Log.d(TAG, "AlarmClock: ${event.title} @ $alertTime ($minutesBefore min lead)")
             } else {
                 alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP, triggerAtMillis, operation
                 )
-                Log.w(TAG, "Inexact fallback scheduled: ${event.title} @ $alertTime")
+                Log.w(TAG, "Inexact fallback: ${event.title} @ $alertTime")
             }
             true
         } catch (e: SecurityException) {
