@@ -6,49 +6,63 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Forex News Alarm"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="4dp" />
 
     <TextView
-        android:id="@+id/subtitleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Alerts 9 minutes before red-folder news  Nepal Time"
-        android:textSize="13sp"
+        android:text="Rings 9 min before every red-folder event (Nepal time)"
+        android:textSize="12sp"
         android:gravity="center"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="12dp" />
 
     <Button
         android:id="@+id/refreshButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Refresh Events &amp; Schedule Alarms" />
+        android:text="Refresh &amp; Schedule" />
 
     <Button
         android:id="@+id/permissionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Grant exact alarm permission"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="6dp"
+        android:text="Grant exact alarm permission" />
+
+    <Button
+        android:id="@+id/batteryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Disable battery optimization" />
+
+    <Button
+        android:id="@+id/dismissButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:backgroundTint="#C62828"
+        android:textColor="#FFFFFF"
+        android:text="DISMISS RINGING ALARM" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="12dp">
 
         <TextView
             android:id="@+id/statusText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Loading..."
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:fontFamily="monospace" />
     </ScrollView>
 

@@ -10,8 +10,9 @@ import java.time.Instant
 import java.time.ZonedDateTime
 
 /**
- * Schedules exact alarms for high-impact news events.
- * Alarms fire 9 minutes before each event, in Asia/Kathmandu time.
+ * Schedules "alarm clock" style alarms for high-impact news events.
+ * setAlarmClock() is the strongest alarm API on Android: it wakes the
+ * device fully, bypasses Doze, and shows the system alarm icon.
  */
 class AlarmScheduler(private val context: Context) {
 
@@ -23,86 +24,56 @@ class AlarmScheduler(private val context: Context) {
     private val alarmManager: AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    /**
-     * Schedule an alarm for a single news event.
-     * Returns true if scheduled successfully.
-     */
     fun scheduleAlarm(event: NewsEvent): Boolean {
-        val alertTime: ZonedDateTime = TimezoneHelper.alertTimeInNepal(
-            event.eventTimeUtc, MINUTES_BEFORE
-        )
+        val alertTime: ZonedDateTime =
+            TimezoneHelper.alertTimeInNepal(event.eventTimeUtc, MINUTES_BEFORE)
 
-        // Don't schedule alarms in the past.
         if (alertTime.toInstant().isBefore(Instant.now())) {
             Log.d(TAG, "Skipping past event: ${event.title}")
             return false
         }
 
         val triggerAtMillis = alertTime.toInstant().toEpochMilli()
-        val pendingIntent = buildPendingIntent(event)
+        val operation = buildOperationPendingIntent(event)
+        val showIntent = PendingIntent.getActivity(
+            context,
+            0,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         return try {
             if (canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent
-                )
-                Log.d(TAG, "Exact alarm scheduled for ${event.title} at $alertTime")
+                val info = AlarmManager.AlarmClockInfo(triggerAtMillis, showIntent)
+                alarmManager.setAlarmClock(info, operation)
+                Log.d(TAG, "AlarmClock scheduled: ${event.title} @ $alertTime")
             } else {
-                // Fallback: inexact alarm (may be delayed up to 15 min).
                 alarmManager.setAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent
+                    AlarmManager.RTC_WAKEUP, triggerAtMillis, operation
                 )
-                Log.w(TAG, "Inexact alarm scheduled for ${event.title} at $alertTime")
+                Log.w(TAG, "Inexact fallback scheduled: ${event.title} @ $alertTime")
             }
             true
         } catch (e: SecurityException) {
-            Log.e(TAG, "SecurityException scheduling alarm", e)
+            Log.e(TAG, "SecurityException", e)
             false
         }
     }
 
-    /**
-     * Schedule alarms for a list of events.
-     */
     fun scheduleAll(events: List<NewsEvent>): Int {
-        var count = 0
-        for (event in events) {
-            if (scheduleAlarm(event)) count++
-        }
-        return count
+        var n = 0
+        for (e in events) if (scheduleAlarm(e)) n++
+        return n
     }
 
-    /**
-     * Cancel the alarm for a specific event.
-     */
-    fun cancelAlarm(event: NewsEvent) {
-        val pendingIntent = buildPendingIntent(event, cancel = true)
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
-    }
-
-    /**
-     * Check whether the app has permission to schedule exact alarms.
-     * On Android 12+ this requires SCHEDULE_EXACT_ALARM; on Android 14+
-     * it is denied by default and must be granted by the user.
-     */
-    fun canScheduleExactAlarms(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    fun canScheduleExactAlarms(): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
-    }
+        else true
 
-    // ----------------------------------------------------------------
-    // Private helpers
-    // ----------------------------------------------------------------
-
-    private fun buildPendingIntent(event: NewsEvent, cancel: Boolean = false): PendingIntent {
+    private fun buildOperationPendingIntent(event: NewsEvent): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             action = "com.example.forexnewsalarm.NEWS_ALARM"
             putExtra("event_title", event.title)
@@ -110,19 +81,7 @@ class AlarmScheduler(private val context: Context) {
             putExtra("event_source", event.source)
             putExtra("event_time_utc", event.eventTimeUtc.epochSecond)
         }
-
-        val flags = if (cancel) {
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        }
-
         return PendingIntent.getBroadcast(
-            context,
-            event.uniqueId.hashCode(),
-            intent,
-            flags
-        ) ?: PendingIntent.getBroadcast(
             context,
             event.uniqueId.hashCode(),
             intent,
