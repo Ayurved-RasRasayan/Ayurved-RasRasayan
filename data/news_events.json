@@ -1,38 +1,164 @@
 {
-  "lastUpdated": "2026-10-25T01:39:48.706311+00:00",
+  "lastUpdated": "2026-10-25T06:51:02.262480+00:00",
   "events": [
     {
       "title": "CPI m/m",
-      "currency": "CAD",
-      "eventTimeUtc": "2026-10-19T12:30:00Z",
-      "impact": "High",
-      "source": "ForexFactory"
-    },
-    {
-      "title": "Median CPI y/y",
-      "currency": "CAD",
-      "eventTimeUtc": "2026-10-19T12:30:00Z",
-      "impact": "High",
-      "source": "ForexFactory"
-    },
-    {
-      "title": "Trimmed CPI y/y",
-      "currency": "CAD",
-      "eventTimeUtc": "2026-10-19T12:30:00Z",
+      "currency": "AUD",
+      "eventTimeUtc": "2026-10-28T00:30:00Z",
       "impact": "High",
       "source": "ForexFactory"
     },
     {
       "title": "CPI y/y",
-      "currency": "GBP",
-      "eventTimeUtc": "2026-10-21T06:00:00Z",
+      "currency": "AUD",
+      "eventTimeUtc": "2026-10-28T00:30:00Z",
       "impact": "High",
       "source": "ForexFactory"
     },
     {
-      "title": "CPI q/q",
+      "title": "Trimmed Mean CPI m/m",
+      "currency": "AUD",
+      "eventTimeUtc": "2026-10-28T00:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Official Cash Rate",
       "currency": "NZD",
-      "eventTimeUtc": "2026-10-21T21:45:00Z",
+      "eventTimeUtc": "2026-10-28T01:00:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "RBNZ Rate Statement",
+      "currency": "NZD",
+      "eventTimeUtc": "2026-10-28T01:00:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "RBNZ Press Conference",
+      "currency": "NZD",
+      "eventTimeUtc": "2026-10-28T02:00:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Annual Budget Release",
+      "currency": "GBP",
+      "eventTimeUtc": "2026-10-28T12:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "BOC Monetary Policy Report",
+      "currency": "CAD",
+      "eventTimeUtc": "2026-10-28T13:45:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "BOC Rate Statement",
+      "currency": "CAD",
+      "eventTimeUtc": "2026-10-28T13:45:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Overnight Rate",
+      "currency": "CAD",
+      "eventTimeUtc": "2026-10-28T13:45:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "BOC Press Conference",
+      "currency": "CAD",
+      "eventTimeUtc": "2026-10-28T14:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Federal Funds Rate",
+      "currency": "USD",
+      "eventTimeUtc": "2026-10-28T18:00:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "FOMC Statement",
+      "currency": "USD",
+      "eventTimeUtc": "2026-10-28T18:00:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "FOMC Press Conference",
+      "currency": "USD",
+      "eventTimeUtc": "2026-10-28T18:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Advance GDP q/q",
+      "currency": "USD",
+      "eventTimeUtc": "2026-10-29T12:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Core PCE Price Index m/m",
+      "currency": "USD",
+      "eventTimeUtc": "2026-10-29T12:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Main Refinancing Rate",
+      "currency": "EUR",
+      "eventTimeUtc": "2026-10-29T13:15:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Monetary Policy Statement",
+      "currency": "EUR",
+      "eventTimeUtc": "2026-10-29T13:15:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "ECB Press Conference",
+      "currency": "EUR",
+      "eventTimeUtc": "2026-10-29T13:45:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "BOJ Policy Rate",
+      "currency": "JPY",
+      "eventTimeUtc": "2026-10-30T02:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "Monetary Policy Statement",
+      "currency": "JPY",
+      "eventTimeUtc": "2026-10-30T02:30:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "BOJ Outlook Report",
+      "currency": "JPY",
+      "eventTimeUtc": "2026-10-30T02:31:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
+      "title": "BOJ Press Conference",
+      "currency": "JPY",
+      "eventTimeUtc": "2026-10-30T05:30:00Z",
       "impact": "High",
       "source": "ForexFactory"
     }
