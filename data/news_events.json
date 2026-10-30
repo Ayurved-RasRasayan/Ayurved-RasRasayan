@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-30T01:57:59.083357+00:00",
+  "lastUpdated": "2026-10-30T08:08:32.459324+00:00",
   "events": [
     {
       "title": "CPI m/m",
@@ -135,30 +135,30 @@
       "source": "ForexFactory"
     },
     {
+      "title": "BOJ Outlook Report",
+      "currency": "JPY",
+      "eventTimeUtc": "2026-10-30T03:02:00Z",
+      "impact": "High",
+      "source": "ForexFactory"
+    },
+    {
       "title": "BOJ Policy Rate",
       "currency": "JPY",
-      "eventTimeUtc": "2026-10-30T02:30:00Z",
+      "eventTimeUtc": "2026-10-30T03:02:00Z",
       "impact": "High",
       "source": "ForexFactory"
     },
     {
       "title": "Monetary Policy Statement",
       "currency": "JPY",
-      "eventTimeUtc": "2026-10-30T02:30:00Z",
-      "impact": "High",
-      "source": "ForexFactory"
-    },
-    {
-      "title": "BOJ Outlook Report",
-      "currency": "JPY",
-      "eventTimeUtc": "2026-10-30T02:31:00Z",
+      "eventTimeUtc": "2026-10-30T03:02:00Z",
       "impact": "High",
       "source": "ForexFactory"
     },
     {
       "title": "BOJ Press Conference",
       "currency": "JPY",
-      "eventTimeUtc": "2026-10-30T05:30:00Z",
+      "eventTimeUtc": "2026-10-30T06:30:00Z",
       "impact": "High",
       "source": "ForexFactory"
     }
