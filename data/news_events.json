@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-11-15T21:16:20.776420+00:00",
+  "lastUpdated": "2026-11-16T01:14:27.547085+00:00",
   "events": [
     {
       "title": "CPI m/m",
@@ -61,13 +61,6 @@
       "title": "CPI y/y",
       "currency": "GBP",
       "eventTimeUtc": "2026-11-18T07:00:00Z",
-      "impact": "High",
-      "source": "ForexFactory"
-    },
-    {
-      "title": "BOE Gov Bailey Speaks",
-      "currency": "GBP",
-      "eventTimeUtc": "2026-11-18T07:30:00Z",
       "impact": "High",
       "source": "ForexFactory"
     },
